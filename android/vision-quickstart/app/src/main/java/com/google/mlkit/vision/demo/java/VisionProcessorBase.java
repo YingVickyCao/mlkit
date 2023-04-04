@@ -125,7 +125,7 @@ public abstract class VisionProcessorBase<T> implements VisionImageProcessor {
     public void processBitmap(Bitmap bitmap, final GraphicOverlay graphicOverlay) {
         long frameStartMs = SystemClock.elapsedRealtime();
 
-        if (isMlImageEnabled(graphicOverlay.getContext())) {
+        if (null != graphicOverlay && isMlImageEnabled(graphicOverlay.getContext())) {
             MlImage mlImage = new BitmapMlImageBuilder(bitmap).build();
             requestDetectInImage(mlImage, graphicOverlay,/* originalCameraImage= */ null,/* shouldShowFps= */ false, frameStartMs);
             mlImage.close();
@@ -247,7 +247,7 @@ public abstract class VisionProcessorBase<T> implements VisionImageProcessor {
                         Log.d(TAG, "Num of Runs: " + numRuns);
                         Log.d(TAG, "Frame latency: max=" + maxFrameMs + ", min=" + minFrameMs + ", avg=" + totalFrameMs / numRuns);
                         Log.d(TAG, "Detector latency: max=" + maxDetectorMs + ", min=" + minDetectorMs + ", avg="
-                                        + totalDetectorMs / numRuns);
+                                + totalDetectorMs / numRuns);
                         MemoryInfo mi = new MemoryInfo();
                         activityManager.getMemoryInfo(mi);
                         long availableMegs = mi.availMem / 0x100000L;
@@ -255,21 +255,29 @@ public abstract class VisionProcessorBase<T> implements VisionImageProcessor {
                         temperatureMonitor.logTemperature();
                     }
 
-                    graphicOverlay.clear();
+                    if (null != graphicOverlay) {
+                        graphicOverlay.clear();
+                    }
                     if (originalCameraImage != null) {
                         graphicOverlay.add(new CameraImageGraphic(graphicOverlay, originalCameraImage));
                     }
                     VisionProcessorBase.this.onSuccess(results, graphicOverlay);
-                    if (!PreferenceUtils.shouldHideDetectionInfo(graphicOverlay.getContext())) {
+                    if (null != graphicOverlay && !PreferenceUtils.shouldHideDetectionInfo(graphicOverlay.getContext())) {
                         graphicOverlay.add(new InferenceInfoGraphic(graphicOverlay, currentFrameLatencyMs, currentDetectorLatencyMs, shouldShowFps ? framesPerSecond : null));
                     }
-                    graphicOverlay.postInvalidate();
+                    if (null != graphicOverlay) {
+                        graphicOverlay.postInvalidate();
+                    }
                 })
                 .addOnFailureListener(executor, e -> {
-                    graphicOverlay.clear();
-                    graphicOverlay.postInvalidate();
+                    if (null != graphicOverlay) {
+                        graphicOverlay.clear();
+                        graphicOverlay.postInvalidate();
+                    }
                     String error = "Failed to process. Error: " + e.getLocalizedMessage();
-                    Toast.makeText(graphicOverlay.getContext(), error + "\nCause: " + e.getCause(), Toast.LENGTH_SHORT).show();
+                    if (null != graphicOverlay) {
+                        Toast.makeText(graphicOverlay.getContext(), error + "\nCause: " + e.getCause(), Toast.LENGTH_SHORT).show();
+                    }
                     Log.d(TAG, error);
                     e.printStackTrace();
                     VisionProcessorBase.this.onFailure(e);

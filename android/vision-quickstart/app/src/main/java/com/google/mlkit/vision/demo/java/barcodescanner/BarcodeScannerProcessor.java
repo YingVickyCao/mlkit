@@ -70,8 +70,10 @@ public class BarcodeScannerProcessor extends VisionProcessorBase<List<Barcode>> 
         }
         for (int i = 0; i < barcodes.size(); ++i) {
             Barcode barcode = barcodes.get(i);
-            Log.d(TAG, "onSuccess: url:"+barcode.getUrl().getUrl());
-            graphicOverlay.add(new BarcodeGraphic(graphicOverlay, barcode));
+            Log.d(TAG, "onSuccess: url:" + barcode.getUrl().getUrl());
+            if (null != graphicOverlay) {
+                graphicOverlay.add(new BarcodeGraphic(graphicOverlay, barcode));
+            }
             logExtrasForTesting(barcode);
         }
     }

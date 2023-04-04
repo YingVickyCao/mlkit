@@ -22,6 +22,7 @@ import android.content.ContentValues;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
@@ -357,11 +358,14 @@ public final class StillImageActivity extends AppCompatActivity {
                 resizedBitmap = Bitmap.createScaledBitmap(imageBitmap, (int) (imageBitmap.getWidth() / scaleFactor), (int) (imageBitmap.getHeight() / scaleFactor), true);
             }
 
-            preview.setImageBitmap(resizedBitmap);
+//            preview.setImageBitmap(resizedBitmap);
 
             if (imageProcessor != null) {
-                graphicOverlay.setImageSourceInfo(resizedBitmap.getWidth(), resizedBitmap.getHeight(), /* isFlipped= */ false);
-                imageProcessor.processBitmap(resizedBitmap, graphicOverlay);
+//                graphicOverlay.setImageSourceInfo(resizedBitmap.getWidth(), resizedBitmap.getHeight(), /* isFlipped= */ false);
+//                imageProcessor.processBitmap(resizedBitmap, graphicOverlay);
+//                imageProcessor.processBitmap(resizedBitmap, null);
+                Bitmap bitmap = BitmapFactory.decodeStream(getContentResolver().openInputStream(imageUri));
+                imageProcessor.processBitmap(resizedBitmap, null);
             } else {
                 Log.e(TAG, "Null imageProcessor, please check adb logs for imageProcessor creation error");
             }
